@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ajgiou — Portfolio</title>
+  <meta name="description" content="Portfolio of ajgiou, developer and open-source contributor. Browse public repositories, skills and technologies, and get in touch via GitHub.">
+  <meta name="author" content="ajgiou">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://github.com/ajgiou">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ajgiou">
+  <meta property="og:title" content="ajgiou — Developer &amp; Open-Source Portfolio">
+  <meta property="og:description" content="Browse public repositories, skills and technologies, and get in touch via GitHub.">
+  <meta property="og:url" content="https://github.com/ajgiou">
+  <meta property="og:image" content="https://avatars.githubusercontent.com/ajgiou">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ajgiou — Developer &amp; Open-Source Portfolio">
+  <meta name="twitter:description" content="Browse public repositories, skills and technologies, and get in touch via GitHub.">
+  <meta name="twitter:image" content="https://avatars.githubusercontent.com/ajgiou">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem("theme"); } catch (error) {}
+      if (theme !== "light" && theme !== "dark") {
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", theme === "dark" ? "#000000" : "#ffffff");
+    })();
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "ajgiou",
+    "url": "https://github.com/ajgiou",
+    "sameAs": ["https://github.com/ajgiou"],
+    "jobTitle": "Developer"
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="site-nav container" aria-label="Primary navigation">
+      <a class="brand" href="#hero">ajgiou<span class="brand__dot" aria-hidden="true"></span></a>
+      <ul class="nav-menu" id="primary-menu">
+        <li><a class="menu-link" href="#about">About</a></li>
+        <li><a class="menu-link" href="#projects">Projects</a></li>
+        <li><a class="menu-link" href="#skills">Skills</a></li>
+        <li><a class="menu-link" href="#contact">Contact</a></li>
+      </ul>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Toggle dark mode">
+        <svg class="theme-toggle__moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg class="theme-toggle__sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      </button>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-menu">
+        <span class="visually-hidden">Toggle navigation menu</span>
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+      </button>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="container">
+        <div class="hero__inner">
+          <div class="hero__content">
+            <p class="hero__eyebrow"><span class="hero__mark" aria-hidden="true"></span>GitHub · @ajgiou</p>
+            <h1 class="hero__title" id="hero-title">ajgiou</h1>
+            <div class="hero__rule" aria-hidden="true"></div>
+            <p class="hero__tagline" id="hero-tagline">Developer &amp; open-source contributor building clean, reliable software.</p>
+            <div class="hero__actions">
+              <a class="button button--solid" href="https://github.com/ajgiou" target="_blank" rel="noopener noreferrer">
+                <svg aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+                <span>GitHub profile</span>
+                <svg class="arrow-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M7 17 17 7M8 7h9v9"/></svg>
+              </a>
+              <a class="button button--outline" href="#projects">View projects</a>
+            </div>
+          </div>
+          <div class="hero__stats" id="hero-stats" hidden>
+            <div class="stat-tile stat-tile--solid">
+              <span class="stat-tile__value" id="stat-repos">–</span>
+              <span class="stat-tile__label">Public repos</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-tile__value" id="stat-followers">–</span>
+              <span class="stat-tile__label">Followers</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="container">
+        <header class="section__head">
+          <span class="section__index" aria-hidden="true">01</span>
+          <h2 class="section__title" id="about-title">About</h2>
+        </header>
+        <div class="row g-4 about">
+          <div class="col-12 col-md-4">
+            <img class="about__avatar" id="about-avatar" src="https://avatars.githubusercontent.com/ajgiou" alt="GitHub avatar of ajgiou" width="320" height="320" loading="lazy" decoding="async">
+          </div>
+          <div class="col-12 col-md-8">
+            <p class="about__lead" id="about-bio">I'm ajgiou — I design and build software with a focus on clarity, simplicity and long-term maintainability.</p>
+            <p class="about__text">This portfolio is a living snapshot of my public work on GitHub: experiments, tools and projects maintained in the open. The repository list below is fetched directly from the GitHub API, so what you see is always current.</p>
+            <dl class="about__facts">
+              <div class="about__fact">
+                <dt>Profile</dt>
+                <dd><a href="https://github.com/ajgiou" target="_blank" rel="noopener noreferrer">github.com/ajgiou</a></dd>
+              </div>
+              <div class="about__fact" id="fact-location" hidden>
+                <dt>Location</dt>
+                <dd id="fact-location-value"></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="projects" aria-labelledby="projects-title">
+      <div class="container">
+        <header class="section__head">
+          <span class="section__index" aria-hidden="true">02</span>
+          <h2 class="section__title" id="projects-title">Projects</h2>
+        </header>
+        <p class="repo-status" id="repo-status" role="status" aria-live="polite">Loading repositories…</p>
+        <noscript>
+          <p class="repo-status">Repository data requires JavaScript. You can browse all public work directly at <a href="https://github.com/ajgiou" target="_blank" rel="noopener noreferrer">github.com/ajgiou</a>.</p>
+        </noscript>
+        <div class="repo-grid" id="repo-grid" aria-busy="true">
+          <div class="repo-card repo-card--skeleton" aria-hidden="true">
+            <span class="skeleton skeleton--title"></span>
+            <span class="skeleton skeleton--line"></span>
+            <span class="skeleton skeleton--line skeleton--short"></span>
+            <span class="skeleton skeleton--meta"></span>
+          </div>
+          <div class="repo-card repo-card--skeleton" aria-hidden="true">
+            <span class="skeleton skeleton--title"></span>
+            <span class="skeleton skeleton--line"></span>
+            <span class="skeleton skeleton--line skeleton--short"></span>
+            <span class="skeleton skeleton--meta"></span>
+          </div>
+          <div class="repo-card repo-card--skeleton" aria-hidden="true">
+            <span class="skeleton skeleton--title"></span>
+            <span class="skeleton skeleton--line"></span>
+            <span class="skeleton skeleton--line skeleton--short"></span>
+            <span class="skeleton skeleton--meta"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="skills" aria-labelledby="skills-title">
+      <div class="container">
+        <header class="section__head">
+          <span class="section__index" aria-hidden="true">03</span>
+          <h2 class="section__title" id="skills-title">Skills &amp; Technologies</h2>
+        </header>
+        <ul class="tag-list" id="skill-list" aria-label="Technologies and tools">
+          <li class="tag">JavaScript</li>
+          <li class="tag">TypeScript</li>
+          <li class="tag">HTML5</li>
+          <li class="tag">CSS3</li>
+          <li class="tag">Python</li>
+          <li class="tag">Node.js</li>
+          <li class="tag">Git</li>
+          <li class="tag">GitHub</li>
+          <li class="tag">REST APIs</li>
+          <li class="tag">Linux</li>
+        </ul>
+        <p class="section__hint">Languages detected in public repositories are added automatically.</p>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <header class="section__head">
+          <span class="section__index" aria-hidden="true">04</span>
+          <h2 class="section__title" id="contact-title">Contact</h2>
+        </header>
+        <p class="contact__text">The fastest way to reach me is GitHub — open an issue, start a discussion, or follow along with new work as it ships.</p>
+        <a class="contact__link" href="https://github.com/ajgiou" target="_blank" rel="noopener noreferrer">
+          github.com/ajgiou
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <p class="site-footer__copy">© <span id="footer-year">2025</span> ajgiou. Built with vanilla HTML, CSS &amp; JavaScript.</p>
+      <ul class="site-footer__links" aria-label="Footer navigation">
+        <li><a href="#hero">Top</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li>
+          <a href="https://github.com/ajgiou" target="_blank" rel="noopener noreferrer">
+            GitHub
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
