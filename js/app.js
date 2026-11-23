@@ -1,10 +1,13 @@
 (() => {
   "use strict";
 
+  /* Configuration */
   const GITHUB_USER = "ajgiou";
   const PROFILE_URL = `https://api.github.com/users/${GITHUB_USER}`;
   const REPOS_URL = `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100`;
   const API_TIMEOUT_MS = 10000;
+  const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes rate limit
+  const CACHE_PREFIX = "gh:";
   const MAX_TAGS = 16;
   const DEFAULT_TAGLINE = "Developer & open-source contributor building clean, reliable software.";
 
@@ -26,6 +29,8 @@
     aboutBio: $("#about-bio"),
     factLocation: $("#fact-location"),
     factLocationValue: $("#fact-location-value"),
+    filterWrap: $("#repo-filter"),
+    filterGroup: $("#repo-filter-group"),
     repoGrid: $("#repo-grid"),
     repoStatus: $("#repo-status"),
     skillList: $("#skill-list"),
@@ -46,6 +51,7 @@
     '<span class="skeleton skeleton--meta"></span>' +
     "</div>";
 
+  /* Helpers */
   const escapeHtml = (value) =>
     String(value ?? "").replace(/[&<>"']/g, (ch) => (
       { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]
@@ -73,20 +79,64 @@
     }
   }
 
+  /* Session cache: avoids refetching on reload and stretches the rate limit */
+  function readCache(key) {
+    try {
+      const raw = sessionStorage.getItem(CACHE_PREFIX + key);
+      if (!raw) return null;
+      const entry = JSON.parse(raw);
+      if (!entry || typeof entry !== "object" || Date.now() - entry.time > CACHE_TTL_MS) return null;
+      return entry.data ?? null;
+    } catch (error) {
+      return null; // data is simply fetched again
+    }
+  }
+
+  function writeCache(key, data) {
+    try {
+      sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ time: Date.now(), data }));
+    } catch (error) {
+      /* storage unavailable — caching is optional */
+    }
+  }
+
+  const errorMessage = (error) =>
+    error.status === 403
+      ? "The GitHub API rate limit was reached. Please try again in a little while."
+      : error.name === "AbortError"
+        ? "The request timed out. Check your connection and try again."
+        : "Something went wrong while contacting the GitHub API.";
+
+  /* Theme */
   function initTheme() {
     if (!els.themeToggle) return;
+
     const apply = (theme) => {
       document.documentElement.dataset.theme = theme;
       els.themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
       els.themeMeta?.setAttribute("content", theme === "dark" ? "#000000" : "#ffffff");
     };
+
     apply(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+
     els.themeToggle.addEventListener("click", () => {
       const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       try { localStorage.setItem("theme", next); } catch (error) { /* storage unavailable */ }
       apply(next);
     });
+
+    // Follow the operating system until the visitor makes an explicit choice.
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", (event) => {
+        let stored = null;
+        try { stored = localStorage.getItem("theme"); } catch (error) { /* ignore */ }
+        if (stored !== "light" && stored !== "dark") apply(event.matches ? "dark" : "light");
+      });
+    }
   }
+
+  /* Navigation */
 
   function initNavigation() {
     if (!els.navToggle || !els.navMenu) return;
@@ -114,6 +164,7 @@
       if (isOpen() && !event.target.closest(".site-header")) setOpen(false);
     });
 
+    // Scroll-spy: highlight the menu link of the section in view.
     if ("IntersectionObserver" in window) {
       const setActiveLink = (id) => {
         els.navLinks.forEach((link) => {
@@ -132,13 +183,41 @@
     }
   }
 
-  function repoCard(repo) {
+  /* Reveal on scroll */
+  function initReveal() {
+    if (!("IntersectionObserver" in window)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const targets = document.querySelectorAll("[data-reveal]");
+    if (!targets.length) return;
+
+    targets.forEach((element) => element.classList.add("reveal"));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    targets.forEach((element) => observer.observe(element));
+  }
+
+  /* Projects */
+
+  function repoCard(repo, index) {
     const description = repo.description ? escapeHtml(repo.description) : "No description provided.";
     const language = repo.language
       ? `<li class="repo-card__lang"><span class="lang-dot" aria-hidden="true"></span>${escapeHtml(repo.language)}</li>`
       : "";
+    const langAttr = repo.language ? ` data-language="${escapeHtml(repo.language)}"` : "";
     return (
-      `<article class="repo-card">` +
+      `<article class="repo-card"${langAttr} style="--card-index:${Math.min(index, 8)}">` +
       `<h3 class="repo-card__name"><a class="repo-card__link" href="${escapeHtml(repo.html_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(repo.name)}${ICONS.arrow}</a></h3>` +
       `<p class="repo-card__desc">${description}</p>` +
       `<ul class="repo-card__meta" aria-label="Repository stats for ${escapeHtml(repo.name)}">` +
@@ -155,11 +234,13 @@
     els.repoGrid.innerHTML = SKELETON_CARD.repeat(3);
     els.repoStatus.classList.remove("repo-status--error");
     els.repoStatus.textContent = "Loading repositories…";
+    hideFilter();
   }
 
   function showErrorState(message) {
     els.repoGrid.removeAttribute("aria-busy");
     els.repoGrid.innerHTML = "";
+    hideFilter();
     els.repoStatus.classList.add("repo-status--error");
     els.repoStatus.innerHTML =
       "<strong>Unable to load repositories.</strong>" +
@@ -171,6 +252,110 @@
     $("#repo-retry")?.addEventListener("click", loadRepos);
   }
 
+  function showEmptyState() {
+    els.repoGrid.removeAttribute("aria-busy");
+    els.repoGrid.innerHTML = "";
+    hideFilter();
+    els.repoStatus.textContent = "No public repositories yet — check back soon.";
+  }
+
+  function hideFilter() {
+    if (els.filterWrap) els.filterWrap.hidden = true;
+    if (els.filterGroup) els.filterGroup.innerHTML = "";
+  }
+
+  function buildLanguageFilter(repos) {
+    if (!els.filterWrap || !els.filterGroup) return;
+
+    const counts = new Map();
+    repos.forEach((repo) => {
+      if (repo.language) counts.set(repo.language, (counts.get(repo.language) || 0) + 1);
+    });
+
+    // A filter needs at least two language groups to be worth its space.
+    const languages = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    if (languages.length < 2) return;
+
+    const makeButton = (value, label, count) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "filter-btn";
+      button.dataset.filter = value;
+      button.setAttribute("aria-pressed", value === "all" ? "true" : "false");
+      const text = document.createElement("span");
+      text.textContent = label;
+      button.appendChild(text);
+      if (typeof count === "number") {
+        const badge = document.createElement("span");
+        badge.className = "filter-btn__count";
+        badge.textContent = String(count);
+        button.appendChild(badge);
+      }
+      return button;
+    };
+
+    els.filterGroup.innerHTML = "";
+    els.filterGroup.appendChild(makeButton("all", "All", repos.length));
+    languages.forEach(([language, count]) => {
+      els.filterGroup.appendChild(makeButton(language, language, count));
+    });
+    els.filterWrap.hidden = false;
+
+    els.filterGroup.addEventListener("click", (event) => {
+      const button = event.target.closest(".filter-btn");
+      if (button) setFilter(button.dataset.filter);
+    });
+  }
+
+  function setFilter(language) {
+    const cards = els.repoGrid.querySelectorAll(".repo-card:not(.repo-card--skeleton)");
+    let visible = 0;
+    cards.forEach((card) => {
+      const show = language === "all" || card.dataset.language === language;
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    els.repoStatus.classList.remove("repo-status--error");
+    els.repoStatus.textContent = language === "all"
+      ? `Showing all ${cards.length} public repositor${cards.length === 1 ? "y" : "ies"}, sorted by stars.`
+      : `Showing ${visible} of ${cards.length} repositor${cards.length === 1 ? "y" : "ies"} written in ${language}.`;
+  }
+
+  async function loadRepos() {
+    showLoadingState();
+    try {
+      let repos = readCache("repos");
+      if (!repos) {
+        repos = await fetchJSON(REPOS_URL);
+        writeCache("repos", repos);
+      }
+
+      const sorted = repos
+        .filter((repo) => !repo.private)
+        .sort(
+          (a, b) =>
+            b.stargazers_count - a.stargazers_count ||
+            new Date(b.pushed_at) - new Date(a.pushed_at)
+        );
+
+      if (sorted.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      els.repoGrid.removeAttribute("aria-busy");
+      els.repoGrid.innerHTML = sorted.map(repoCard).join("");
+      els.repoStatus.textContent = `Showing all ${sorted.length} public repositor${sorted.length === 1 ? "y" : "ies"}, sorted by stars.`;
+      buildLanguageFilter(sorted);
+      appendLanguageSkills(sorted);
+    } catch (error) {
+      showErrorState(errorMessage(error));
+    }
+  }
+
+  /* Skills */
   function appendLanguageSkills(repos) {
     if (!els.skillList) return;
     const known = new Set(
@@ -188,41 +373,15 @@
     });
   }
 
-  async function loadRepos() {
-    showLoadingState();
-    try {
-      const repos = await fetchJSON(REPOS_URL);
-      const sorted = repos
-        .filter((repo) => !repo.private)
-        .sort(
-          (a, b) =>
-            b.stargazers_count - a.stargazers_count ||
-            new Date(b.pushed_at) - new Date(a.pushed_at)
-        );
-      if (sorted.length === 0) {
-        els.repoGrid.removeAttribute("aria-busy");
-        els.repoGrid.innerHTML = "";
-        els.repoStatus.textContent = "No public repositories yet — check back soon.";
-        return;
-      }
-      els.repoGrid.removeAttribute("aria-busy");
-      els.repoGrid.innerHTML = sorted.map(repoCard).join("");
-      els.repoStatus.textContent = `Showing all ${sorted.length} public repositor${sorted.length === 1 ? "y" : "ies"}, sorted by stars.`;
-      appendLanguageSkills(sorted);
-    } catch (error) {
-      const message =
-        error.status === 403
-          ? "The GitHub API rate limit was reached. Please try again in a little while."
-          : error.name === "AbortError"
-            ? "The request timed out. Check your connection and try again."
-            : "Something went wrong while contacting the GitHub API.";
-      showErrorState(message);
-    }
-  }
-
+  /* Profile */
   async function loadProfile() {
     try {
-      const profile = await fetchJSON(PROFILE_URL);
+      let profile = readCache("profile");
+      if (!profile) {
+        profile = await fetchJSON(PROFILE_URL);
+        writeCache("profile", profile);
+      }
+
       const displayName = profile.name || profile.login || GITHUB_USER;
       if (els.heroTitle) els.heroTitle.textContent = displayName;
       if (els.heroTagline) els.heroTagline.textContent = profile.bio || DEFAULT_TAGLINE;
@@ -245,9 +404,11 @@
     }
   }
 
+  /* Init */
   function init() {
     initTheme();
     initNavigation();
+    initReveal();
     if (els.footerYear) els.footerYear.textContent = String(new Date().getFullYear());
     loadProfile();
     loadRepos();
