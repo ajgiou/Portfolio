@@ -34,15 +34,6 @@ That means:
 - Add a new public project on GitHub and it appears on the page by itself.
 - Nothing here needs editing when a project changes.
 
-## Design system quick reference
-
-Defined as CSS custom properties at the top of `css/style.css`:
-
-- **Color** — one neutral hue used at different tones: `#ffffff` / `#f5f5f5` backgrounds, `#555` / `#8a8a8a` secondary text, `#000000` text and strong borders, solid black fills for interactive elements. In dark mode the same tones invert.
-- **Type** — a single sans-serif stack (Segoe UI first). Hierarchy comes from size, weight and letter-spacing only — no decorative fonts.
-- **Shape** — square corners everywhere, 1–2px rules, flat solid fills. No gradients, no shadows.
-- **Rhythm** — `--section-pad` (fluid), `--gutter` (fluid), `--content-width`, `--header-height`. Change these tokens and the whole page follows.
-
 ## Privacy
 
 No passwords, no accounts, no databases, no tracking, no third-party scripts. The page only reads public information that GitHub already shows everyone.
