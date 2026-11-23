@@ -1,33 +1,56 @@
 # ajgiou — Portfolio Website
 
-A one-page portfolio website that shows my GitHub projects automatically.
+A one-page portfolio that stays in sync with my public GitHub profile automatically.
 
-It is built with plain HTML, CSS and JavaScript. There are no special tools to install and nothing to build — the files work exactly as they are.
+It is built with plain HTML, CSS and JavaScript — **no frameworks, no build step, no external dependencies**. The files work exactly as they are; the only network requests are to the public GitHub API for live data.
 
 ## What each file does
 
 | File | What it does |
 | --- | --- |
 | `index.html` | The page itself — the text, the sections, the structure |
-| `css/style.css` | The look — colors, spacing, sizes, dark mode |
-| `js/app.js` | The working parts — loads the projects, the dark/light switch, the phone menu |
-| `.nojekyll` | A tiny empty helper file for GitHub Pages (explained below) |
+| `css/style.css` | The design system — tokens, reset, layout, components, dark mode |
+| `js/app.js` | The working parts — GitHub data, theme switch, mobile menu, language filter, reveal-on-scroll |
 
-Keep the folder shape as it is: `style.css` lives inside the `css` folder and `app.js` lives inside the `js` folder.
+## Features
+
+- **Live GitHub data** — profile name, bio, avatar, location, repo/follower counts, and the full public repository list are fetched from the GitHub API and rendered on load.
+- **Language filter** — flat, Metro-style toggle tiles let visitors filter projects by language; each tile shows a count, the result line updates, and the state is exposed via `aria-pressed`.
+- **Dark / light theme** — a square toggle switches themes; the choice is remembered per browser. Until a choice is made, the page follows the operating system setting (including live changes). The correct theme is applied before first paint, so there is no flash.
+- **Responsive, fluid layout** — typography and section rhythm scale continuously with the viewport (`clamp()`), the repository grid moves 1 → 2 → 3 columns, and the About section stacks on small screens. Navigation collapses into an accessible hamburger menu with Escape/outside-click to close.
+- **Scroll-spy navigation** — the menu highlights the section currently in view.
+- **Reveal-on-scroll** — sections fade in subtly as they enter the viewport. It is a progressive enhancement: without JavaScript, or with "reduce motion" enabled, all content is simply visible.
+- **Loading and error states** — skeleton cards while data loads, a friendly retry panel if the API fails, and session caching so reloads do not hit the rate limit.
+- **Accessible by design** — skip link, semantic landmarks, live regions for dynamic content, visible focus styles, 44px minimum touch targets, and full `prefers-reduced-motion` support.
 
 ## How the projects list works
 
-The Projects section is not written by hand. When someone opens the page, it quietly asks GitHub's public directory: "what has this person made public?" GitHub sends back the list, and the page fills in the cards — name, description, language, stars, forks and a link.
+The Projects section is not written by hand. When someone opens the page, it asks GitHub's public API what this person has published, then fills in the cards — name, description, language, stars, forks and a link — sorted by stars.
+
+Responses are cached in the browser's session storage for 10 minutes, so reloading the page or re-filtering does not spend the hourly API budget.
 
 That means:
 
 - Add a new public project on GitHub and it appears on the page by itself.
 - Nothing here needs editing when a project changes.
 
-## Things to know:
+## Design system quick reference
 
-- About `.nojekyll`: it tells GitHub to skip some behind-the-scenes processing it normally does with uploaded files. Your computer may hide files whose names start with a dot — if you cannot drag it in, create it on github.com instead: click **Add file → Create new file**, type `.nojekyll` as the name, leave it empty, and save.
-- The page needs internet when it loads. It borrows two free style helpers (Bootstrap and Normalize) from the web, and it reads the project list from GitHub's public directory.
-- If the Projects section ever says it could not load, it is usually one of three things: no internet, a slow connection, or GitHub briefly limiting how many times the same internet connection asked (this resets within the hour). The **Retry** button tries again, and **View on GitHub** always works as a backup.
-- The dark/light switch remembers the visitor's choice in their own browser. On a first visit it follows whatever their device is set to.
-- No passwords, no accounts, no databases, no tracking. The page only reads public information that GitHub already shows everyone.
+Defined as CSS custom properties at the top of `css/style.css`:
+
+- **Color** — one neutral hue used at different tones: `#ffffff` / `#f5f5f5` backgrounds, `#555` / `#8a8a8a` secondary text, `#000000` text and strong borders, solid black fills for interactive elements. In dark mode the same tones invert.
+- **Type** — a single sans-serif stack (Segoe UI first). Hierarchy comes from size, weight and letter-spacing only — no decorative fonts.
+- **Shape** — square corners everywhere, 1–2px rules, flat solid fills. No gradients, no shadows.
+- **Rhythm** — `--section-pad` (fluid), `--gutter` (fluid), `--content-width`, `--header-height`. Change these tokens and the whole page follows.
+
+## Privacy
+
+No passwords, no accounts, no databases, no tracking, no third-party scripts. The page only reads public information that GitHub already shows everyone.
+
+## What changed in this revision
+
+- Removed the Bootstrap and Normalize.css CDN dependencies (~200 KB); the stylesheet now includes a small purpose-built reset, so the "vanilla HTML, CSS & JavaScript" claim is literally true and the page renders fully offline.
+- Fixed the `hidden` attribute bug where empty stat tiles could stay visible when profile data was unavailable.
+- Replaced stepped breakpoint typography with fluid `clamp()` scales and a shared spacing token.
+- Added the language filter for projects, session caching of GitHub responses, theme syncing with the OS, reveal-on-scroll, keyboard focus states on project cards, and a theme-aware favicon.
+- Reorganized `style.css` into a documented, token-driven design system aligned with the Metro Monochrome guide.
